@@ -1,0 +1,36 @@
+{
+  "name": "newbits-gui",
+  "version": "0.1.0",
+  "description": "Electron GUI for the newBits ChromeOS recovery tool",
+  "main": "out/main/index.js",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "preview": "electron-vite preview",
+    "package": "electron-vite build && electron-builder"
+  },
+  "build": {
+    "appId": "com.newbits.gui",
+    "productName": "newBits",
+    "linux": {
+      "target": "AppImage",
+      "category": "Utility"
+    },
+    "files": [
+      "out/**/*",
+      "python/**/*"
+    ],
+    "asarUnpack": ["python/**/*"]
+  },
+  "dependencies": {
+    "@electron-toolkit/preload": "^3.0.1",
+    "@electron-toolkit/utils": "^3.0.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.4",
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3",
+    "electron-vite": "^2.3.0",
+    "vue": "^3.4.21"
+  }
+}
