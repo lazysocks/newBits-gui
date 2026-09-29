@@ -103,7 +103,7 @@ function onModelSelected(model) {
 
 function onUSBSelected(drives) {
   selectedDrives.value = drives
-  step.value = 'download'
+  step.value = imageFile.value ? 'apply' : 'download'
 }
 
 function onDownloadDone({ imagePath, zipPath }) {
