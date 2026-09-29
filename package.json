@@ -20,6 +20,9 @@
       "out/**/*",
       "python/**/*"
     ],
+    "extraResources": [
+      { "from": "build/icon.png", "to": "icon.png" }
+    ],
     "asarUnpack": ["python/**/*"]
   },
   "dependencies": {

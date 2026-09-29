@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { homedir } from 'os'
+import { existsSync } from 'fs'
 import { spawn } from 'child_process'
 import { is } from '@electron-toolkit/utils'
 
@@ -8,12 +9,17 @@ let pythonBridge = null
 let mainWindow = null
 
 function createWindow() {
+  const iconPath = app.isPackaged
+    ? join(process.resourcesPath, 'icon.png')
+    : join(__dirname, '../../build/icon.png')
+
   mainWindow = new BrowserWindow({
     width: 900,
     height: 680,
     minWidth: 800,
     minHeight: 600,
     title: 'newBits — ChromeOS Recovery',
+    icon: existsSync(iconPath) ? iconPath : undefined,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false
