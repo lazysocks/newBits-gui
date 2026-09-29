@@ -29,9 +29,18 @@
             {{ done ? 'Done' : error ? 'Error' : 'Running' }}
           </span>
         </div>
-        <p v-if="!done && !error" style="font-size: 12px; color: var(--text-muted); margin-top: 8px">
-          dd is writing in parallel to all selected drives. This may take several minutes.
-        </p>
+        <div v-if="!done && !error" style="margin-top: 10px">
+          <div class="progress-bar">
+            <div class="progress-bar-fill" :style="{ width: progressPct + '%' }"></div>
+          </div>
+          <div class="progress-label">
+            {{ store.progress.desc }}
+            <span v-if="store.progress.total">
+              {{ formatBytes(store.progress.current) }} / {{ formatBytes(store.progress.total) }}
+              ({{ progressPct }}%)
+            </span>
+          </div>
+        </div>
       </div>
 
       <div v-if="error" class="error-msg" style="margin-top: 14px">{{ error }}</div>
@@ -49,7 +58,7 @@
 </template>
 
 <script setup>
-import { ref, watch, nextTick, toRaw } from 'vue'
+import { ref, computed, watch, nextTick, toRaw } from 'vue'
 import { sendCommand, store } from '../stores/bridge.js'
 
 const props = defineProps({
@@ -63,6 +72,18 @@ const started = ref(false)
 const done = ref(false)
 const error = ref('')
 const logs = ref([])
+
+const progressPct = computed(() => {
+  const { current, total } = store.progress
+  return total ? Math.round((current / total) * 100) : 0
+})
+
+function formatBytes(n) {
+  if (!n) return '0 B'
+  const sizes = ['B', 'KB', 'MB', 'GB']
+  const i = Math.floor(Math.log(n) / Math.log(1024))
+  return `${(n / Math.pow(1024, i)).toFixed(1)} ${sizes[i]}`
+}
 const logEl = ref(null)
 
 watch(() => store.logs.length, async () => {
@@ -106,4 +127,7 @@ code { background: var(--surface-2); padding: 2px 6px; border-radius: 3px; font-
 .badge-success { background: #1a3d1a; color: var(--success); }
 .badge-warning { background: #3d2e1a; color: var(--warning); }
 .badge-error { background: #3d1a1a; color: var(--error); }
+.progress-bar { height: 6px; background: var(--surface-2); border-radius: 3px; overflow: hidden; }
+.progress-bar-fill { height: 100%; background: var(--warning); transition: width 0.3s ease; }
+.progress-label { font-size: 12px; color: var(--text-muted); margin-top: 6px; display: flex; justify-content: space-between; }
 </style>

@@ -21,7 +21,8 @@ import hashlib
 import shutil
 import subprocess
 from pathlib import Path
-from subprocess import Popen
+import threading
+from subprocess import Popen, PIPE
 
 
 def emit(event_type, **kwargs):
@@ -243,18 +244,46 @@ def cmd_apply_image(args):
     image_file = args["image_file"]
     devices = args["devices"]
 
-    # dd requires root
     if os.getuid() != 0:
         error("Root privileges required to write to block devices")
         return
 
     try:
+        image_size = os.path.getsize(image_file)
         log(f"Writing {os.path.basename(image_file)} to {len(devices)} device(s)…")
+
+        device_progress = {dev: 0 for dev in devices}
+        lock = threading.Lock()
+
+        def read_stderr(dev, proc):
+            buf = b""
+            while True:
+                ch = proc.stderr.read(1)
+                if not ch:
+                    break
+                if ch in (b"\r", b"\n"):
+                    line = buf.decode("utf-8", errors="ignore").strip()
+                    buf = b""
+                    m = re.match(r"^(\d+)\s+bytes", line)
+                    if m:
+                        written = int(m.group(1))
+                        with lock:
+                            device_progress[dev] = written
+                            slowest = min(device_progress.values())
+                        progress(slowest, image_size, f"Writing to {len(devices)} drive(s)")
+                else:
+                    buf += ch
+
         procs = []
+        threads = []
         for dev in devices:
             log(f"Starting dd → /dev/{dev}")
             cmd = f"dd bs=4M of=/dev/{dev} if={image_file} conv=sync status=progress"
-            procs.append((dev, Popen(cmd, shell=True)))
+            proc = Popen(cmd, shell=True, stderr=PIPE)
+            procs.append((dev, proc))
+            t = threading.Thread(target=read_stderr, args=(dev, proc), daemon=True)
+            t.start()
+            threads.append(t)
 
         for dev, proc in procs:
             proc.wait()
@@ -263,6 +292,10 @@ def cmd_apply_image(args):
             else:
                 log(f"/dev/{dev} — dd exited with code {proc.returncode}", level="error")
 
+        for t in threads:
+            t.join()
+
+        progress(image_size, image_size, "Write complete")
         result({"success": True})
     except Exception as e:
         error(str(e))
