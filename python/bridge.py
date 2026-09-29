@@ -180,6 +180,7 @@ def cmd_download_image(args):
     resume = args.get("resume", False)
 
     try:
+        os.makedirs(os.path.dirname(dest), exist_ok=True)
         if resume and os.path.exists(dest):
             existing = Path(dest).stat().st_size
             headers = {"Range": f"bytes={existing}-"}

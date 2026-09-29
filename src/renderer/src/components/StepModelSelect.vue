@@ -84,7 +84,6 @@ import { sendCommand, store } from '../stores/bridge.js'
 
 const emit = defineEmits(['selected'])
 
-const WORKDIR = '/tmp/tmp.newbits'
 const phase = ref('download')
 const recoveryListPath = ref('')
 const searchQuery = ref('')
@@ -107,8 +106,9 @@ function formatBytes(n) {
 }
 
 onMounted(async () => {
+  const workdir = await window.api.getWorkdir()
   try {
-    const data = await sendCommand({ cmd: 'fetch_recovery_list', workdir: WORKDIR })
+    const data = await sendCommand({ cmd: 'fetch_recovery_list', workdir })
     recoveryListPath.value = data.dest
     phase.value = 'search'
   } catch (e) {

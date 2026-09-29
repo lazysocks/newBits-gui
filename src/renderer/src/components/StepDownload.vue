@@ -72,13 +72,16 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, nextTick } from 'vue'
+import { ref, computed, watch, nextTick, onMounted } from 'vue'
 import { sendCommand, store } from '../stores/bridge.js'
 
 const props = defineProps({ model: Object })
 const emit = defineEmits(['complete'])
 
-const WORKDIR = '/tmp/tmp.newbits'
+const workdir = ref('')
+onMounted(async () => {
+  workdir.value = await window.api.getWorkdir()
+})
 
 const started = ref(false)
 const error = ref('')
@@ -129,8 +132,8 @@ async function start() {
   started.value = true
   error.value = ''
 
-  const zipPath = `${WORKDIR}/${props.model.file}.zip`
-  const imagePath = `${WORKDIR}/${props.model.file}`
+  const zipPath = `${workdir.value}/${props.model.file}.zip`
+  const imagePath = `${workdir.value}/${props.model.file}`
 
   // Download
   phases.value.download = 'running'
@@ -156,7 +159,7 @@ async function start() {
     await sendCommand({
       cmd: 'unzip_image',
       zipfile: zipPath,
-      workdir: WORKDIR,
+      workdir: workdir.value,
       imagefile: imagePath,
       filesize: props.model.filesize
     })

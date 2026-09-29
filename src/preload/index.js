@@ -3,6 +3,7 @@ import { contextBridge, ipcRenderer } from 'electron'
 const api = {
   startBridge: (usePkexec = false) => ipcRenderer.invoke('bridge:start', usePkexec),
   sendCommand: (command) => ipcRenderer.invoke('bridge:send', command),
+  getWorkdir: () => ipcRenderer.invoke('app:workdir'),
   onBridgeEvent: (callback) => {
     ipcRenderer.on('bridge:event', (_, event) => callback(event))
   },

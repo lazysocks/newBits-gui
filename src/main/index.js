@@ -1,5 +1,6 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
+import { homedir } from 'os'
 import { spawn } from 'child_process'
 import { is } from '@electron-toolkit/utils'
 
@@ -87,6 +88,24 @@ app.whenReady().then(() => {
     if (!pythonBridge) return false
     pythonBridge.stdin.write(JSON.stringify(command) + '\n')
     return true
+  })
+
+  ipcMain.handle('app:workdir', () => {
+    console.log('[workdir] app.isPackaged    :', app.isPackaged)
+    console.log('[workdir] process.execPath  :', process.execPath)
+    console.log('[workdir] APPIMAGE env      :', process.env.APPIMAGE)
+    console.log('[workdir] HOME env          :', process.env.HOME)
+    console.log('[workdir] homedir()         :', homedir())
+    console.log('[workdir] app.getAppPath()  :', app.getAppPath())
+    console.log('[workdir] app.userData      :', app.getPath('userData'))
+    if (app.isPackaged) {
+      const workdir = join(homedir(), '.local', 'share', 'newbits-gui', 'workdir')
+      console.log('[workdir] resolved (pkg)    :', workdir)
+      return workdir
+    }
+    const workdir = join(app.getAppPath(), 'newbits-workdir')
+    console.log('[workdir] resolved (dev)    :', workdir)
+    return workdir
   })
 
   app.on('activate', () => {

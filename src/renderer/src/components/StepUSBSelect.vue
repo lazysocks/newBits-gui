@@ -18,6 +18,11 @@
     </div>
 
     <div v-else style="margin-top: 20px">
+      <div style="display: flex; justify-content: flex-end; margin-bottom: 8px">
+        <button class="secondary" style="padding: 4px 12px; font-size: 12px" @click="toggleSelectAll">
+          {{ allSelected ? 'Deselect All' : 'Select All' }}
+        </button>
+      </div>
       <div class="drive-list">
         <label
           v-for="(info, dev) in drives"
@@ -62,7 +67,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { sendCommand } from '../stores/bridge.js'
 
 defineEmits(['selected'])
@@ -71,6 +76,19 @@ const loading = ref(true)
 const drives = ref({})
 const selectedDrives = ref([])
 const error = ref('')
+
+const allSelected = computed(() => {
+  const keys = Object.keys(drives.value)
+  return keys.length > 0 && keys.every(d => selectedDrives.value.includes(d))
+})
+
+function toggleSelectAll() {
+  if (allSelected.value) {
+    selectedDrives.value = []
+  } else {
+    selectedDrives.value = Object.keys(drives.value)
+  }
+}
 
 async function refresh() {
   loading.value = true
