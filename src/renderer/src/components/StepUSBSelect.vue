@@ -55,6 +55,7 @@
       <div class="step-actions">
         <button class="secondary" @click="$emit('back')">← Back</button>
         <button class="secondary" @click="refresh">Refresh</button>
+        <button class="secondary" @click="quit()">Quit</button>
         <button
           class="danger"
           :disabled="selectedDrives.length === 0"
@@ -72,6 +73,8 @@ import { ref, computed, onMounted } from 'vue'
 import { sendCommand } from '../stores/bridge.js'
 
 defineEmits(['selected', 'back'])
+
+function quit() { window.close() }
 
 const loading = ref(true)
 const drives = ref({})

@@ -53,6 +53,7 @@
 
     <div class="step-actions">
       <button v-if="!started" class="secondary" @click="$emit('back')">← Back</button>
+      <button v-if="!allDone" class="secondary" @click="quit">Quit</button>
       <button
         v-if="!started"
         class="primary"
@@ -99,6 +100,21 @@ const progressPct = computed(() => {
   const { current, total } = store.progress
   return total ? Math.round((current / total) * 100) : 0
 })
+
+const allDone = computed(() =>
+  phases.value.download === 'done' &&
+  phases.value.verify === 'done' &&
+  phases.value.unzip === 'done'
+)
+
+async function quit() {
+  if (started.value) {
+    const zipPath = `${workdir.value}/${props.model.file}.zip`
+    const imagePath = `${workdir.value}/${props.model.file}`
+    try { await sendCommand({ cmd: 'cleanup', files: [zipPath, imagePath] }) } catch (_) {}
+  }
+  window.close()
+}
 
 watch(() => store.logs.length, async () => {
   const lastLog = store.logs[store.logs.length - 1]

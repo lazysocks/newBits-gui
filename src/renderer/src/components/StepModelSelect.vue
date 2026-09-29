@@ -5,8 +5,11 @@
 
     <!-- Download phase -->
     <div v-if="phase === 'download'" class="card" style="margin-top: 20px">
-      <h2>Fetching recovery list…</h2>
-      <div style="margin-top: 14px">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px">
+        <h2 style="margin: 0">Fetching recovery list…</h2>
+        <button class="secondary" style="padding: 4px 12px; font-size: 12px" @click="quit()">Quit</button>
+      </div>
+      <div>
         <div class="progress-bar">
           <div
             class="progress-bar-fill"
@@ -66,6 +69,7 @@
         <span v-if="results.length" style="color: var(--text-muted); font-size: 12px; align-self: center">
           {{ results.length }} result(s)
         </span>
+        <button class="secondary" @click="quit()">Quit</button>
         <button
           class="primary"
           :disabled="!selected"
@@ -83,6 +87,8 @@ import { ref, computed, onMounted } from 'vue'
 import { sendCommand, store } from '../stores/bridge.js'
 
 const emit = defineEmits(['selected'])
+
+function quit() { window.close() }
 
 const phase = ref('download')
 const recoveryListPath = ref('')

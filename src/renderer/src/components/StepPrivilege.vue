@@ -11,6 +11,7 @@
         <span>Running with administrator privileges.</span>
       </div>
       <div class="step-actions">
+        <button class="secondary" @click="quit()">Quit</button>
         <button class="primary" @click="$emit('complete')">Continue →</button>
       </div>
     </div>
@@ -24,11 +25,9 @@
         access via a system privilege dialog, or launch this app with <code>sudo</code>.
       </p>
       <div class="step-actions" style="justify-content: flex-start">
+        <button class="secondary" @click="quit()">Quit</button>
         <button class="primary" @click="elevate" :disabled="elevating">
           {{ elevating ? 'Requesting…' : 'Elevate with pkexec' }}
-        </button>
-        <button class="secondary" @click="proceed">
-          Continue Anyway (read-only mode)
         </button>
       </div>
       <div v-if="error" class="error-msg" style="margin-top: 12px">{{ error }}</div>
@@ -58,6 +57,8 @@ onMounted(async () => {
   }
 })
 
+function quit() { window.close() }
+
 async function elevate() {
   elevating.value = true
   error.value = ''
@@ -73,9 +74,7 @@ async function elevate() {
   }
 }
 
-function proceed() {
-  emit('complete')
-}
+
 </script>
 
 <style scoped>
