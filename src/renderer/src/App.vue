@@ -28,19 +28,23 @@
       <StepUSBSelect
         v-else-if="step === 'usb'"
         @selected="onUSBSelected"
+        @back="step = 'model'"
       />
       <StepDownload
         v-else-if="step === 'download'"
         :model="selectedModel"
         @complete="onDownloadDone"
+        @back="step = 'usb'"
       />
       <StepApply
         v-else-if="step === 'apply'"
         :image-file="imageFile"
         :drives="selectedDrives"
         :model="selectedModel"
+        :temp-files="tempFiles"
         @complete="onApplyDone"
         @more="onMoreDrives"
+        @back="step = 'usb'"
       />
       <StepCleanup
         v-else-if="step === 'cleanup'"

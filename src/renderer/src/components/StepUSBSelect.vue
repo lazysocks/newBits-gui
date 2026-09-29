@@ -53,6 +53,7 @@
       </div>
 
       <div class="step-actions">
+        <button class="secondary" @click="$emit('back')">← Back</button>
         <button class="secondary" @click="refresh">Refresh</button>
         <button
           class="danger"
@@ -70,7 +71,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { sendCommand } from '../stores/bridge.js'
 
-defineEmits(['selected'])
+defineEmits(['selected', 'back'])
 
 const loading = ref(true)
 const drives = ref({})

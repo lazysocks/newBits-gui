@@ -52,6 +52,7 @@
     <div v-if="error" class="error-msg" style="margin-top: 16px">{{ error }}</div>
 
     <div class="step-actions">
+      <button v-if="!started" class="secondary" @click="$emit('back')">← Back</button>
       <button
         v-if="!started"
         class="primary"
@@ -76,7 +77,7 @@ import { ref, computed, watch, nextTick, onMounted } from 'vue'
 import { sendCommand, store } from '../stores/bridge.js'
 
 const props = defineProps({ model: Object })
-const emit = defineEmits(['complete'])
+const emit = defineEmits(['complete', 'back'])
 
 const workdir = ref('')
 onMounted(async () => {

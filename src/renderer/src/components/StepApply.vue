@@ -17,8 +17,14 @@
       </div>
     </div>
 
-    <div v-if="!started" class="step-actions" style="margin-top: 20px">
+    <div v-if="!started && !cancelling" class="step-actions" style="margin-top: 20px">
+      <button class="secondary" @click="$emit('back')">← Back</button>
+      <button class="secondary" @click="cancel">Cancel</button>
       <button class="danger" @click="apply">Write Image Now</button>
+    </div>
+
+    <div v-if="cancelling" style="margin-top: 20px; color: var(--text-muted); font-size: 13px">
+      {{ cancelDone ? 'Cleaned up. Closing…' : 'Cleaning up temp files…' }}
     </div>
 
     <div v-else style="margin-top: 20px">
@@ -64,14 +70,17 @@ import { sendCommand, store } from '../stores/bridge.js'
 const props = defineProps({
   imageFile: String,
   drives: Array,
-  model: Object
+  model: Object,
+  tempFiles: Array
 })
-defineEmits(['complete', 'more'])
+defineEmits(['complete', 'more', 'back'])
 
 const started = ref(false)
 const done = ref(false)
 const error = ref('')
 const logs = ref([])
+const cancelling = ref(false)
+const cancelDone = ref(false)
 
 const progressPct = computed(() => {
   const { current, total } = store.progress
@@ -92,6 +101,15 @@ watch(() => store.logs.length, async () => {
   await nextTick()
   if (logEl.value) logEl.value.scrollTop = logEl.value.scrollHeight
 })
+
+async function cancel() {
+  cancelling.value = true
+  try {
+    await sendCommand({ cmd: 'cleanup', files: toRaw(props.tempFiles ?? []) })
+  } catch (_) {}
+  cancelDone.value = true
+  setTimeout(() => window.close(), 800)
+}
 
 async function apply() {
   started.value = true
