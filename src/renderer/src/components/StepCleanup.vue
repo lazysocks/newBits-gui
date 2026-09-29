@@ -13,7 +13,6 @@
     <div v-if="error" class="error-msg" style="margin-top: 14px">{{ error }}</div>
 
     <div class="step-actions">
-      <button class="secondary" @click="$emit('done')">Skip</button>
       <button class="primary" :disabled="cleaning || done" @click="clean">
         {{ done ? 'Cleaned' : cleaning ? 'Cleaning…' : 'Delete Temp Files' }}
       </button>

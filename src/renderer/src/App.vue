@@ -55,6 +55,7 @@
         <div class="finished-icon">✓</div>
         <h2>All done!</h2>
         <p>Your USB drive(s) are ready. You can safely remove them.</p>
+        <button class="primary" @click="quit()">Quit</button>
       </div>
     </main>
   </div>
@@ -128,6 +129,8 @@ function onMoreDrives() {
 function onCleanupDone() {
   step.value = 'finished'
 }
+
+function quit() { window.close() }
 </script>
 
 <style scoped>
